@@ -1,6 +1,6 @@
-# relayfile-helm-charts
+# AgentWorkforce Helm Charts
 
-Helm charts for [Relayfile](https://github.com/AgentWorkforce/relayfile) — virtual filesystem sync for agents.
+Single Helm chart repository for all AgentWorkforce services. Each service lives under `charts/<service-name>/`.
 
 ## Charts
 
@@ -11,10 +11,14 @@ Helm charts for [Relayfile](https://github.com/AgentWorkforce/relayfile) — vir
 ## Quick start
 
 ```bash
-helm repo add relayfile https://AgentWorkforce.github.io/relayfile-helm-charts
+helm repo add agentworkforce https://AgentWorkforce.github.io/helm-charts
 helm repo update
+```
 
-helm install relayfile relayfile/relayfile \
+### Install relayfile
+
+```bash
+helm install relayfile agentworkforce/relayfile \
   --set secrets.internalHmacSecret=<strong-secret> \
   --set secrets.productionDsn='postgres://user:pass@host:5432/dbname?sslmode=require' \
   --set auth.jwksUrl=https://auth.relay.example.com/.well-known/jwks.json
@@ -24,8 +28,8 @@ See [charts/relayfile/README.md](charts/relayfile/README.md) for the full parame
 
 ## Releases
 
-Charts are packaged and published to GitHub Pages via [helm/chart-releaser-action](https://github.com/helm/chart-releaser-action) on every merge to `main`.
+Charts are packaged and published to GitHub Pages via [helm/chart-releaser-action](https://github.com/helm/chart-releaser-action) on every merge to `main`. chart-releaser detects changed chart versions automatically — each service chart is released independently.
 
 ## Contributing
 
-Open a PR against `main`. Merges are gated by Khaliq.
+Add new service charts under `charts/<service-name>/`. Open a PR against `main`. Merges are gated by Khaliq.

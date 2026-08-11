@@ -5,8 +5,8 @@
 ## TL;DR
 
 ```bash
-helm repo add relayfile https://AgentWorkforce.github.io/relayfile-helm-charts
-helm install relayfile relayfile/relayfile \
+helm repo add agentworkforce https://AgentWorkforce.github.io/helm-charts
+helm install relayfile agentworkforce/relayfile \
   --set secrets.internalHmacSecret=<strong-secret> \
   --set secrets.productionDsn=<postgres-dsn> \
   --set auth.jwksUrl=https://auth.relay.example.com/.well-known/jwks.json
@@ -35,7 +35,7 @@ Relayfile is a **single deployable binary** (`cmd/relayfile`). It:
 ### Add the Helm Repository
 
 ```bash
-helm repo add relayfile https://AgentWorkforce.github.io/relayfile-helm-charts
+helm repo add agentworkforce https://AgentWorkforce.github.io/helm-charts
 helm repo update
 ```
 
@@ -53,7 +53,7 @@ kubectl create secret generic relayfile-credentials \
 Then install the chart pointing to that secret:
 
 ```bash
-helm install relayfile relayfile/relayfile \
+helm install relayfile agentworkforce/relayfile \
   --set secrets.existingSecret=relayfile-credentials \
   --set auth.jwksUrl=https://auth.relay.example.com/.well-known/jwks.json \
   --set ingress.enabled=true \
@@ -65,7 +65,7 @@ helm install relayfile relayfile/relayfile \
 ### Install (development / in-memory profile)
 
 ```bash
-helm install relayfile-dev relayfile/relayfile \
+helm install relayfile-dev agentworkforce/relayfile \
   --set server.backendProfile=memory \
   --set secrets.internalHmacSecret=dev-only-secret
 ```
@@ -177,7 +177,7 @@ Charts are released via [helm/chart-releaser-action](https://github.com/helm/cha
 
 ```bash
 # Install from the repo after the first release has been published
-helm repo add relayfile https://AgentWorkforce.github.io/relayfile-helm-charts
+helm repo add agentworkforce https://AgentWorkforce.github.io/helm-charts
 helm repo update
 helm search repo relayfile
 ```
