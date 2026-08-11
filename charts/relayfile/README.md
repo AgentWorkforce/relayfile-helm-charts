@@ -6,10 +6,12 @@
 
 ```bash
 helm repo add agentworkforce https://AgentWorkforce.github.io/helm-charts
+# Development (in-memory, no Postgres):
 helm install relayfile agentworkforce/relayfile \
-  --set secrets.internalHmacSecret=<strong-secret> \
-  --set secrets.productionDsn=<postgres-dsn> \
-  --set auth.jwksUrl=https://auth.relay.example.com/.well-known/jwks.json
+  --set server.backendProfile=memory \
+  --set secrets.internalHmacSecret=<strong-secret>
+# Production: create a Kubernetes Secret first (keeps credentials out of shell history
+# and Helm release metadata), then reference it — see "Installing the Chart" below.
 ```
 
 ## Prerequisites
@@ -102,8 +104,8 @@ helm uninstall relayfile
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `server.port` | Port the server listens on; used for containerPort, Service port, and default `RELAYFILE_ADDR` | `8080` |
-| `server.addr` | Full TCP bind address (`RELAYFILE_ADDR`); overrides `server.port` derivation when set (e.g. `"127.0.0.1:8080"`) | `""` |
+| `server.port` | Port the server listens on; used for containerPort and default `RELAYFILE_ADDR` (Service port is configured separately via `service.port`) | `8080` |
+| `server.addr` | Full TCP bind address (`RELAYFILE_ADDR`); overrides `server.port` derivation when set. **Do not use a loopback address** — kubelet probes and the Service target the pod IP, not loopback | `""` |
 | `server.backendProfile` | Storage profile (`RELAYFILE_BACKEND_PROFILE`): `production` (Postgres), `memory` (dev/in-process), `durable-local` (file; requires writable volume + `readOnlyRootFilesystem: false`), `custom` (BYO DSNs) | `production` |
 | `server.envelopeWorkers` | In-process envelope worker count (`RELAYFILE_ENVELOPE_WORKERS`) | `2` |
 | `server.writebackWorkers` | In-process writeback worker count (`RELAYFILE_WRITEBACK_WORKERS`) | `2` |
@@ -163,7 +165,7 @@ Configure only the providers you use.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `resources` | Resource requests and limits | `{}` |
+| `resources` | Resource requests and limits; defaults to `requests: {cpu: 100m, memory: 128Mi}` so HPA utilization metrics are always computable. Override or remove if a LimitRange supplies defaults | `{requests: {cpu: 100m, memory: 128Mi}}` |
 | `podDisruptionBudget.enabled` | Enable PodDisruptionBudget | `false` |
 | `networkPolicy.enabled` | Enable NetworkPolicy | `false` |
 | `serviceAccount.create` | Create a ServiceAccount | `true` |

@@ -20,7 +20,7 @@ rules:
     http:
       paths:
       {{- range .paths }}
-        - path: {{ .path }}
+        - path: {{ .path | quote }}
           pathType: {{ .pathType | default "Prefix" }}
           backend:
             service:

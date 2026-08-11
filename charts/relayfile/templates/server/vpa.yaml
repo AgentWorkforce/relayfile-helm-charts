@@ -12,5 +12,5 @@ spec:
     kind: Deployment
     name: {{ include "relayfile.server.fullname" . }}
   updatePolicy:
-    updateMode: {{ .Values.verticalPodAutoscaler.updateMode | default "Auto" | quote }}
+    updateMode: {{ .Values.verticalPodAutoscaler.updateMode | default "Off" | quote }}
 {{- end }}

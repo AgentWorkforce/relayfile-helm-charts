@@ -29,7 +29,9 @@ server:
 
   # Full TCP address the server listens on (RELAYFILE_ADDR). Defaults to ":{{ server.port }}"
   # when empty, which binds all interfaces on server.port.
-  # Set an explicit value to restrict the bind interface (e.g. "127.0.0.1:8080").
+  # WARNING: binding to a loopback/host-specific address (e.g. "127.0.0.1:9090") makes the
+  # server unreachable from the cluster — kubelet probes and the Kubernetes Service target
+  # the pod IP, not loopback. Keep this empty unless you know what you're doing.
   addr: ""
 
   # Storage backend profile (RELAYFILE_BACKEND_PROFILE).
@@ -149,7 +151,9 @@ autoscaling:
 # ---------------------------------------------------------------------------
 verticalPodAutoscaler:
   enabled: false
-  updateMode: "Auto"
+  # "Off" — recommendations only, no active pod mutations (safe default).
+  # "Auto" — actively mutates resource requests; can restart pods and conflict with HPA.
+  updateMode: "Off"
 
 # ---------------------------------------------------------------------------
 # Pod Disruption Budget
@@ -157,8 +161,9 @@ verticalPodAutoscaler:
 podDisruptionBudget:
   enabled: false
   # Exactly one of minAvailable or maxUnavailable must be set when enabled=true.
-  # Kubernetes rejects a PDB with neither field.
-  minAvailable: 1
+  # Kubernetes rejects a PDB with neither field, and also rejects one with both.
+  # Uncomment exactly one:
+  # minAvailable: 1
   # maxUnavailable: 1
 
 # ---------------------------------------------------------------------------

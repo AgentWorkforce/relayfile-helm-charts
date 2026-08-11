@@ -8,9 +8,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Helm build artifacts (should never be inside a chart source dir)
+# Helm build artifacts (*.tgz covers packaged archives; do NOT list charts/ here
+# as that directory is where helm dependency update places vendored subcharts)
 *.tgz
-charts/
 
 # Temp files from testing
 temp-values.yaml
