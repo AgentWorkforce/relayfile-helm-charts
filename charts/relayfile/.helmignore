@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Helm build artifacts (*.tgz covers packaged archives; do NOT list charts/ here
+# as that directory is where helm dependency update places vendored subcharts)
+*.tgz
+
+# Temp files from testing
+temp-values.yaml
+*.tmp
+
+# CI artifacts
+.cr-release-packages/
+.cr-index/

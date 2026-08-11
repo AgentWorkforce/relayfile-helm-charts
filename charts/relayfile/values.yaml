@@ -1,0 +1,255 @@
+## Default values for relayfile.
+## This is a YAML-formatted file. Declare variables to be passed into your templates.
+
+# ---------------------------------------------------------------------------
+# Image
+# ---------------------------------------------------------------------------
+image:
+  # Registry + repository for the relayfile server image.
+  repository: ghcr.io/agentworkforce/relayfile
+  # Overrides the image tag (defaults to Chart.appVersion when empty).
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# Image pull secrets for private registries.
+imagePullSecrets: []
+
+# ---------------------------------------------------------------------------
+# Replica count
+# ---------------------------------------------------------------------------
+replicaCount: 1
+
+# ---------------------------------------------------------------------------
+# Server configuration
+# ---------------------------------------------------------------------------
+server:
+  # Port the server listens on. Used for the container port, Service port, and to
+  # derive RELAYFILE_ADDR. Must match the port component of server.addr when both are set.
+  port: 8080
+
+  # Full TCP address the server listens on (RELAYFILE_ADDR). Defaults to ":{{ server.port }}"
+  # when empty, which binds all interfaces on server.port.
+  # WARNING: binding to a loopback/host-specific address (e.g. "127.0.0.1:9090") makes the
+  # server unreachable from the cluster — kubelet probes and the Kubernetes Service target
+  # the pod IP, not loopback. Keep this empty unless you know what you're doing.
+  addr: ""
+
+  # Storage backend profile (RELAYFILE_BACKEND_PROFILE).
+  # "production" — Postgres (RELAYFILE_PRODUCTION_DSN required)
+  # "memory"     — in-process; dev/test only, state lost on restart
+  # "durable-local" — file-backed; requires containerSecurityContext.readOnlyRootFilesystem=false
+  #                   and a writable volume at RELAYFILE_DATA_DIR; not recommended for production
+  # "custom"     — bring your own DSNs via RELAYFILE_STATE_BACKEND_DSN etc.
+  backendProfile: "production"
+
+  # Number of in-process envelope-processing workers (RELAYFILE_ENVELOPE_WORKERS).
+  envelopeWorkers: 2
+
+  # Number of in-process writeback workers (RELAYFILE_WRITEBACK_WORKERS).
+  writebackWorkers: 2
+
+  # Maximum concurrent provider operations (RELAYFILE_PROVIDER_MAX_CONCURRENCY).
+  providerMaxConcurrency: 4
+
+  # Optional: maximum rate limit requests per window (RELAYFILE_RATE_LIMIT_MAX).
+  rateLimitMax: ""
+
+  # Optional: rate limit window duration, e.g. "1m" (RELAYFILE_RATE_LIMIT_WINDOW).
+  rateLimitWindow: ""
+
+  # Optional: max request body size in bytes (RELAYFILE_MAX_BODY_BYTES).
+  maxBodyBytes: ""
+
+# ---------------------------------------------------------------------------
+# Secrets / credentials
+# ---------------------------------------------------------------------------
+secrets:
+  # If set, use this existing Kubernetes Secret instead of creating one.
+  # The secret must contain keys: RELAYFILE_PRODUCTION_DSN, RELAYFILE_INTERNAL_HMAC_SECRET,
+  # RELAYFILE_JWT_SECRET (plus any provider tokens you use).
+  existingSecret: ""
+
+  # Used only when existingSecret is empty (chart creates a Secret).
+  # REQUIRED in production when backendProfile=production.
+  productionDsn: ""          # RELAYFILE_PRODUCTION_DSN — Postgres connection string
+
+  # REQUIRED: HMAC secret for the internal webhook endpoint.
+  internalHmacSecret: ""     # RELAYFILE_INTERNAL_HMAC_SECRET
+
+  # JWT secret used to mint/verify workspace tokens.
+  jwtSecret: ""              # RELAYFILE_JWT_SECRET
+
+# ---------------------------------------------------------------------------
+# External authentication (relayauth)
+# ---------------------------------------------------------------------------
+auth:
+  # JWKS URL served by the relayauth service (RELAYAUTH_JWKS_URL).
+  # relayauth is a separate external service; only its public JWKS endpoint is needed here.
+  jwksUrl: ""
+
+# ---------------------------------------------------------------------------
+# Provider credentials (optional — configure only the providers you use)
+# ---------------------------------------------------------------------------
+providers:
+  notion:
+    # Personal integration token (RELAYFILE_NOTION_TOKEN).
+    token: ""
+    # Override Notion API base URL (RELAYFILE_NOTION_BASE_URL) — leave empty for default.
+    baseUrl: ""
+    # Notion API version header (RELAYFILE_NOTION_API_VERSION) — leave empty for default.
+    apiVersion: ""
+
+# ---------------------------------------------------------------------------
+# Service
+# ---------------------------------------------------------------------------
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+
+# ---------------------------------------------------------------------------
+# Ingress
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: false
+  # Ingress class name (e.g. "nginx", "traefik").
+  className: ""
+  annotations: {}
+  # hosts:
+  #   - host: relayfile.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  hosts: []
+  tls: []
+
+# ---------------------------------------------------------------------------
+# Resource requests and limits
+# ---------------------------------------------------------------------------
+# Default requests ensure HPA CPU/memory utilization metrics are computable.
+# Override or remove in environments with a LimitRange that supplies defaults.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+
+# ---------------------------------------------------------------------------
+# Horizontal Pod Autoscaler
+# ---------------------------------------------------------------------------
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# ---------------------------------------------------------------------------
+# Vertical Pod Autoscaler
+# ---------------------------------------------------------------------------
+verticalPodAutoscaler:
+  enabled: false
+  # "Off" — recommendations only, no active pod mutations (safe default).
+  # "Auto" — actively mutates resource requests; can restart pods and conflict with HPA.
+  updateMode: "Off"
+
+# ---------------------------------------------------------------------------
+# Pod Disruption Budget
+# ---------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: false
+  # Exactly one of minAvailable or maxUnavailable must be set when enabled=true.
+  # Kubernetes rejects a PDB with neither field, and also rejects one with both.
+  # Uncomment exactly one:
+  # minAvailable: 1
+  # maxUnavailable: 1
+
+# ---------------------------------------------------------------------------
+# Network Policy
+# ---------------------------------------------------------------------------
+networkPolicy:
+  # Enable a NetworkPolicy that restricts ingress to the server port only.
+  enabled: false
+  # Allow ingress from all namespaces when true.
+  allowExternalTraffic: true
+
+# ---------------------------------------------------------------------------
+# Service Account
+# ---------------------------------------------------------------------------
+serviceAccount:
+  # Create a dedicated ServiceAccount for the server pod.
+  create: true
+  # Annotations to add (e.g. for IRSA / Workload Identity).
+  annotations: {}
+  # Override the auto-generated name.
+  name: ""
+
+# ---------------------------------------------------------------------------
+# Pod configuration
+# ---------------------------------------------------------------------------
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+# ---------------------------------------------------------------------------
+# Scheduling
+# ---------------------------------------------------------------------------
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# ---------------------------------------------------------------------------
+# Health probes
+# ---------------------------------------------------------------------------
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# ---------------------------------------------------------------------------
+# Extra environment variables and envFrom sources
+# ---------------------------------------------------------------------------
+# Inject arbitrary env vars (e.g. for additional providers not listed above).
+# Example:
+#   extraEnv:
+#     - name: RELAYFILE_GITHUB_TOKEN
+#       valueFrom:
+#         secretKeyRef:
+#           name: my-secret
+#           key: github-token
+extraEnv: []
+
+# Mount existing ConfigMaps or Secrets as environment variable sources.
+extraEnvFrom: []
+
+# ---------------------------------------------------------------------------
+# Name overrides
+# ---------------------------------------------------------------------------
+nameOverride: ""
+fullnameOverride: ""

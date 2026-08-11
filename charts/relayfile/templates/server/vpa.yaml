@@ -1,0 +1,16 @@
+{{- if .Values.verticalPodAutoscaler.enabled -}}
+apiVersion: {{ include "relayfile.capabilities.vpa.apiVersion" . }}
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ include "relayfile.server.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "relayfile.server.labels" . | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "relayfile.server.fullname" . }}
+  updatePolicy:
+    updateMode: {{ .Values.verticalPodAutoscaler.updateMode | default "Off" | quote }}
+{{- end }}
