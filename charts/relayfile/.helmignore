@@ -1,1 +1,21 @@
+# OS
 .DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Helm build artifacts (should never be inside a chart source dir)
+*.tgz
+charts/
+
+# Temp files from testing
+temp-values.yaml
+*.tmp
+
+# CI artifacts
+.cr-release-packages/
+.cr-index/

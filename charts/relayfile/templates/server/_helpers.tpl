@@ -29,8 +29,11 @@ Env vars come from three sources (in priority order Kubernetes applies):
   3. user-supplied extraEnv
 */}}
 {{- define "relayfile.server.env" -}}
+{{- if and (not .Values.secrets.existingSecret) (not .Values.secrets.internalHmacSecret) -}}
+{{- fail "secrets.internalHmacSecret is required (or set secrets.existingSecret to an existing Secret)" -}}
+{{- end -}}
 - name: RELAYFILE_ADDR
-  value: {{ .Values.server.addr | quote }}
+  value: {{ if .Values.server.addr }}{{ .Values.server.addr | quote }}{{ else }}{{ printf ":%d" (.Values.server.port | int) | quote }}{{ end }}
 - name: RELAYFILE_BACKEND_PROFILE
   value: {{ .Values.server.backendProfile | quote }}
 - name: RELAYFILE_ENVELOPE_WORKERS

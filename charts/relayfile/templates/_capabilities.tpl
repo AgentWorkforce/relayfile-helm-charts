@@ -1,14 +1,4 @@
 {{/*
-Return true if the apiVersion for a given GroupVersion is available.
-Usage: include "relayfile.capabilities.apiVersion" (dict "context" . "apiGroup" "autoscaling/v2")
-*/}}
-{{- define "relayfile.capabilities.apiVersion" -}}
-{{- if .context.Capabilities.APIVersions.Has .apiGroup -}}
-{{- true -}}
-{{- end -}}
-{{- end }}
-
-{{/*
 Return the appropriate apiVersion for HorizontalPodAutoscaler.
 Prefer autoscaling/v2; fall back to v2beta2 for older clusters.
 */}}

@@ -62,23 +62,6 @@ Create the name of the service account to use.
 {{- end }}
 
 {{/*
-Return the image reference for a given component.
-Usage: include "relayfile.image" .Values.image
-*/}}
-{{- define "relayfile.image" -}}
-{{- $tag := .tag | default "latest" -}}
-{{- printf "%s:%s" .repository $tag -}}
-{{- end }}
-
-{{/*
-Return the full image reference using the chart's appVersion as default tag.
-*/}}
-{{- define "relayfile.serverImage" -}}
-{{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
-{{- printf "%s:%s" .Values.image.repository $tag -}}
-{{- end }}
-
-{{/*
 Name of the Secret that holds credentials (either existing or chart-managed).
 */}}
 {{- define "relayfile.secretName" -}}

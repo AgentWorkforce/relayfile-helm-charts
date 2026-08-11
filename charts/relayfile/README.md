@@ -102,8 +102,9 @@ helm uninstall relayfile
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `server.addr` | TCP address the server listens on (`RELAYFILE_ADDR`) | `:8080` |
-| `server.backendProfile` | Storage profile: `production`, `memory`, `durable-local`, `custom` (`RELAYFILE_BACKEND_PROFILE`) | `production` |
+| `server.port` | Port the server listens on; used for containerPort, Service port, and default `RELAYFILE_ADDR` | `8080` |
+| `server.addr` | Full TCP bind address (`RELAYFILE_ADDR`); overrides `server.port` derivation when set (e.g. `"127.0.0.1:8080"`) | `""` |
+| `server.backendProfile` | Storage profile (`RELAYFILE_BACKEND_PROFILE`): `production` (Postgres), `memory` (dev/in-process), `durable-local` (file; requires writable volume + `readOnlyRootFilesystem: false`), `custom` (BYO DSNs) | `production` |
 | `server.envelopeWorkers` | In-process envelope worker count (`RELAYFILE_ENVELOPE_WORKERS`) | `2` |
 | `server.writebackWorkers` | In-process writeback worker count (`RELAYFILE_WRITEBACK_WORKERS`) | `2` |
 | `server.providerMaxConcurrency` | Max concurrent provider operations (`RELAYFILE_PROVIDER_MAX_CONCURRENCY`) | `4` |

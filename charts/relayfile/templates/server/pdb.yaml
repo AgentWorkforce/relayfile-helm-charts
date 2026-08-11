@@ -1,4 +1,7 @@
 {{- if .Values.podDisruptionBudget.enabled -}}
+{{- if and (not (hasKey .Values.podDisruptionBudget "minAvailable")) (not (hasKey .Values.podDisruptionBudget "maxUnavailable")) -}}
+{{- fail "podDisruptionBudget.enabled=true requires either minAvailable or maxUnavailable to be set" -}}
+{{- end -}}
 apiVersion: {{ include "relayfile.capabilities.pdb.apiVersion" . }}
 kind: PodDisruptionBudget
 metadata:
@@ -7,9 +10,9 @@ metadata:
   labels:
     {{- include "relayfile.server.labels" . | nindent 4 }}
 spec:
-  {{- if .Values.podDisruptionBudget.minAvailable }}
+  {{- if hasKey .Values.podDisruptionBudget "minAvailable" }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
-  {{- else if .Values.podDisruptionBudget.maxUnavailable }}
+  {{- else if hasKey .Values.podDisruptionBudget "maxUnavailable" }}
   maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
   {{- end }}
   selector:
