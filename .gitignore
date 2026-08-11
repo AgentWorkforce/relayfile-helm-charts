@@ -1,0 +1,4 @@
+.DS_Store
+charts/relayfile/charts/
+*.tgz
+temp-values.yaml

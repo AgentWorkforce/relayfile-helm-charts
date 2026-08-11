@@ -1,0 +1,22 @@
+apiVersion: v2
+name: relayfile
+type: application
+version: 0.1.0
+appVersion: "latest"
+description: >
+  Relayfile — virtual filesystem sync for agents. A single Go binary that
+  serves a workspace file-sync API over HTTP, backed by Postgres in
+  production or in-memory for development.
+home: https://github.com/AgentWorkforce/relayfile
+keywords:
+  - relayfile
+  - vfs
+  - filesystem
+  - sync
+  - agents
+  - agentworkforce
+maintainers:
+  - name: AgentWorkforce
+    url: https://github.com/AgentWorkforce/relayfile-helm-charts
+sources:
+  - https://github.com/AgentWorkforce/relayfile-helm-charts/tree/main/charts/relayfile

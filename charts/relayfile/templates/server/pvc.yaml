@@ -1,0 +1,5 @@
+{{- /*
+Relayfile's server is stateless — all durable state lives in Postgres (production profile)
+or in-process memory (dev). No PersistentVolumeClaim is required for the default deployment.
+This file is included for structural parity with the reference layout.
+*/}}
