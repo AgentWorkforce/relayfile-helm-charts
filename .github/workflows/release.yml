@@ -35,5 +35,8 @@ jobs:
           charts_dir: charts
           # pages_branch must match the branch configured in repo Settings → Pages.
           pages_branch: gh-pages
+          # skip_existing prevents failure when a chart version was already released
+          # (e.g. on workflow re-runs after a partial failure).
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
