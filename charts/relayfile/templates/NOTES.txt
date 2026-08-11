@@ -1,0 +1,28 @@
+Thank you for installing {{ .Chart.Name }} {{ .Chart.Version }}.
+
+Release name: {{ .Release.Name }}
+Namespace:    {{ .Release.Namespace }}
+
+{{- if .Values.ingress.enabled }}
+The relayfile server is accessible at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if eq .Values.service.type "LoadBalancer" }}
+Get the external IP with:
+  kubectl get svc --namespace {{ .Release.Namespace }} {{ include "relayfile.server.fullname" . }} -w
+{{- else if eq .Values.service.type "ClusterIP" }}
+Forward the server port locally with:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "relayfile.server.fullname" . }} 8080:{{ .Values.service.port }}
+  Then visit: http://127.0.0.1:8080/health
+{{- end }}
+
+Configuration notes:
+  - Backend profile: {{ .Values.server.backendProfile }}
+{{- if not .Values.secrets.existingSecret }}
+  - A Secret was created from chart values. Consider supplying secrets.existingSecret
+    to manage credentials outside the chart (e.g. via Sealed Secrets or ESO).
+{{- else }}
+  - Using existing Secret: {{ .Values.secrets.existingSecret }}
+{{- end }}
+  - relayauth JWKS URL: {{ if .Values.auth.jwksUrl }}{{ .Values.auth.jwksUrl }}{{ else }}(not set — set auth.jwksUrl){{ end }}
